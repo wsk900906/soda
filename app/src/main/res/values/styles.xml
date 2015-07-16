@@ -1,0 +1,17 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">#0fb73d</item>
+        <item name="colorPrimaryDark">#0ba823</item>
+        <item name="colorAccent">#f6ad66</item>
+    </style>
+    <style name="MyDialogPop" parent="@android:style/Theme.Dialog">
+        <item name="android:windowAnimationStyle">@style/MyDialogAnimationPop</item>
+    </style>
+    <style name="MyDialogAnimationPop">
+        <item name="android:windowEnterAnimation">@anim/pop_show_overshoot</item>
+        <item name="android:windowExitAnimation">@anim/pop_dismiss_interpolator</item>
+    </style>
+</resources>
