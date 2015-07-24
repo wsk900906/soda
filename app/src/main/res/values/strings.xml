@@ -1,5 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="MissingTranslation" >
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="app_name">搜哒</string>
     <string name="app_title">搜哒-全网应用搜索</string>
     <string name="app_id">5592149467e58ed35300323a</string>
@@ -15,7 +14,7 @@
     <string name="setmarket">设置市场</string>
     <string name="share">分享</string>
     <string name="marketcomment">去市场评论</string>
-    <string name="sharetxt">\"搜哒\"-全国首款全网安卓应用和游戏搜索平台，各大应用平台均可免费下载！</string>
+    <string name="sharetxt">\"搜哒\"-全国首款全网安卓应用和游戏搜索平台，豌豆荚可免费下载！http://www.wandoujia.com/apps/com.soapp.asoda</string>
     <string name="commentFailed">未检测到本机安装的应用市场.</string>
     <string name="shareto">分享到...</string>
     <string name="pleaseinputSearch">请先输入要搜索的内容</string>
@@ -23,4 +22,12 @@
     <string name="UMENG_SEARCH">search</string>
     <string name="UMENG_MARKET">market</string>
     <string name="pleaseconnectNetwork">请先连接网络</string>
+    <string name="about">关于</string>
+    <string name="version">版本号</string>
+    <string name="author">开发人</string>
+    <string name="authorname">Swifty</string>
+    <string name="authoremail">wsk900906@gmail.com</string>
+    <string name="email">邮箱</string>
+    <string name="qq">QQ</string>
+    <string name="authorqq">469526674</string>
 </resources>

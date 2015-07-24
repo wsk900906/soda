@@ -25,12 +25,12 @@ import android.util.FloatMath;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 
-public class PullToRefreshWebView extends PullToRefreshBase<WebView> {
+public class PullToRefreshWebView extends PullToRefreshBase<ExtendedWebView> {
 
-	private static final OnRefreshListener<WebView> defaultOnRefreshListener = new OnRefreshListener<WebView>() {
+	private static final OnRefreshListener<ExtendedWebView> defaultOnRefreshListener = new OnRefreshListener<ExtendedWebView>() {
 
 		@Override
-		public void onRefresh(PullToRefreshBase<WebView> refreshView) {
+		public void onRefresh(PullToRefreshBase<ExtendedWebView> refreshView) {
 			refreshView.getRefreshableView().reload();
 		}
 
@@ -93,12 +93,12 @@ public class PullToRefreshWebView extends PullToRefreshBase<WebView> {
 	}
 
 	@Override
-	protected WebView createRefreshableView(Context context, AttributeSet attrs) {
-		WebView webView;
+	protected ExtendedWebView createRefreshableView(Context context, AttributeSet attrs) {
+		ExtendedWebView webView;
 		if (VERSION.SDK_INT >= VERSION_CODES.GINGERBREAD) {
 			webView = new InternalWebViewSDK9(context, attrs);
 		} else {
-			webView = new WebView(context, attrs);
+			webView = new ExtendedWebView(context, attrs);
 		}
 
 		webView.setId(R.id.webview);
@@ -129,7 +129,7 @@ public class PullToRefreshWebView extends PullToRefreshBase<WebView> {
 	}
 
 	@TargetApi(9)
-	final class InternalWebViewSDK9 extends WebView {
+	final class InternalWebViewSDK9 extends ExtendedWebView {
 
 		// WebView doesn't always scroll back to it's edge so we add some
 		// fuzziness
@@ -160,6 +160,16 @@ public class PullToRefreshWebView extends PullToRefreshBase<WebView> {
 		private int getScrollRange() {
 			return (int) Math.max(0, FloatMath.floor(mRefreshableView.getContentHeight() * mRefreshableView.getScale())
 					- (getHeight() - getPaddingBottom() - getPaddingTop()));
+		}
+	}
+	public boolean canScrollHor(int direction) {
+		final int offset = computeHorizontalScrollOffset();
+		final int range = computeHorizontalScrollRange() - computeHorizontalScrollExtent();
+		if (range == 0) return false;
+		if (direction < 0) {
+			return offset > 0;
+		} else {
+			return offset < range - 1;
 		}
 	}
 }

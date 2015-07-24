@@ -14,16 +14,17 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.webkit.DownloadListener;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -31,8 +32,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 
-import com.handmark.pulltorefresh.library.PullToRefreshBase;
-import com.handmark.pulltorefresh.library.PullToRefreshWebView;
 import com.soapp.asoda.Util.AdsUtil;
 import com.soapp.asoda.Util.CommentUtil;
 import com.soapp.asoda.Util.DecodeXML;
@@ -40,6 +39,8 @@ import com.soapp.asoda.Util.ShareUtil;
 import com.soapp.asoda.Util.SharedPreferencesFactory;
 import com.soapp.asoda.Util.ToastUtil;
 import com.soapp.asoda.dialog.MyDialogStyle;
+import com.soapp.asoda.ui.ScrollSwipeRefreshLayout;
+import com.soapp.asoda.ui.WebViewPager;
 import com.umeng.analytics.AnalyticsConfig;
 import com.umeng.analytics.MobclickAgent;
 import com.umeng.update.UmengUpdateAgent;
@@ -69,10 +70,11 @@ public class MainActivity extends AppCompatActivity {
     /**
      * The {@link ViewPager} that will host the section contents.
      */
-    ViewPager mViewPager;
+    WebViewPager mViewPager;
     //static ActionBar actionBar;
     private long exitTime = 0;
     TabLayout tabLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -135,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.pager);
+        mViewPager = (WebViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
         tabLayout.setupWithViewPager(mViewPager);
 
@@ -195,6 +197,9 @@ public class MainActivity extends AppCompatActivity {
             ShareUtil.shareApp(this);
         } else if (id == R.id.action_comment) {
             CommentUtil.commentApp(this);
+        } else if (id == R.id.about) {
+            MyDialogStyle myDialogStyle = new MyDialogStyle(this);
+            myDialogStyle.showAboutDialog();
         }
 
         return super.onOptionsItemSelected(item);
@@ -251,7 +256,8 @@ public class MainActivity extends AppCompatActivity {
          * number.
          */
         private static int section;
-        PullToRefreshWebView pullToRefreshWebView;
+        WebView webView;
+        ScrollSwipeRefreshLayout swipeRefreshLayout;
         ProgressBar progressBar;
 
         public static PlaceholderFragment newInstance(int sectionNumber) {
@@ -263,29 +269,24 @@ public class MainActivity extends AppCompatActivity {
             return fragment;
         }
 
-        public PlaceholderFragment() {
-        }
-
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            pullToRefreshWebView = (PullToRefreshWebView) rootView.findViewById(R.id.webview);
-            final WebView webView = pullToRefreshWebView.getRefreshableView();
-            pullToRefreshWebView.setMode(PullToRefreshBase.Mode.PULL_FROM_START);
-            pullToRefreshWebView.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener2<WebView>() {
-                @Override
-                public void onPullDownToRefresh(PullToRefreshBase<WebView> refreshView) {
-                    loadSearch(webView, getArguments().getInt("index"), query);
-                    ToastUtil.show(getActivity(), getString(R.string.refreshing));
-                    pullToRefreshWebView.onRefreshComplete();
-                }
-
-                @Override
-                public void onPullUpToRefresh(PullToRefreshBase<WebView> refreshView) {
-
-                }
-            });
+            swipeRefreshLayout = (ScrollSwipeRefreshLayout) rootView.findViewById(R.id.swipelayout);
+            swipeRefreshLayout.setColorSchemeColors(getActivity().getResources().getColor(R.color.maincolor));
+            swipeRefreshLayout.getViewTreeObserver().addOnScrollChangedListener(
+                    new ViewTreeObserver.OnScrollChangedListener() {
+                        @Override
+                        public void onScrollChanged() {
+                            if (((ViewGroup) webView.getParent()).getScrollY() == 0)
+                                swipeRefreshLayout.setEnabled(true);
+                            else
+                                swipeRefreshLayout.setEnabled(false);
+                        }
+                    });
+            webView = (WebView) rootView.findViewById(R.id.webview);
+            swipeRefreshLayout.setViewGroup((ViewGroup) webView.getParent());//设置监听滚动的子view
             progressBar = (ProgressBar) rootView.findViewById(R.id.pb);
             webSetting(webView);
             webView.setDownloadListener(new DownloadListener() {
@@ -300,19 +301,31 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onProgressChanged(WebView view, int newProgress) {
                     super.onProgressChanged(view, newProgress);
-                    if (newProgress != 100) {
-                        progressBar.setProgress(newProgress);
-                    } else {
+                    if (newProgress == 100) {
                         progressBar.setVisibility(View.GONE);
+                        if (swipeRefreshLayout.isShown()) {
+                            swipeRefreshLayout.setRefreshing(false);
+                        }
+                    } else {
+                        progressBar.setProgress(newProgress);
                     }
                 }
             });
             webView.setWebViewClient(new WebViewClient() {
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                    progressBar.setVisibility(View.VISIBLE);
-                    loadUrl(getActivity(), webView, url);
-                    return true;
+                    if (url.startsWith("http:") || url.startsWith("https:")) {
+                        progressBar.setVisibility(View.VISIBLE);
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }
+            });
+            swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    loadSearch(webView, getArguments().getInt("index"), query);
                 }
             });
             loadSearch(webView, getArguments().getInt("index"), query);
@@ -342,6 +355,9 @@ public class MainActivity extends AppCompatActivity {
                 }
             } else {
                 ToastUtil.show(getActivity(), getString(R.string.pleaseinputSearch));
+                if (swipeRefreshLayout.isShown()) {
+                    swipeRefreshLayout.setRefreshing(false);
+                }
             }
 
 

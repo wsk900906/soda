@@ -20,16 +20,16 @@
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|enterAlways"
-            app:popupTheme="@style/AppTheme"/>
+            app:popupTheme="@style/AppTheme" />
 
         <android.support.design.widget.TabLayout
             android:id="@+id/tab_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:tabMode="scrollable"/>
+            app:tabMode="scrollable" />
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.v4.view.ViewPager xmlns:android="http://schemas.android.com/apk/res/android"
+    <com.soapp.asoda.ui.WebViewPager xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

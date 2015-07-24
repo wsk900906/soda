@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.soapp.asoda.Market;
 import com.soapp.asoda.R;
 import com.soapp.asoda.SelectMarketFinish;
+import com.soapp.asoda.Util.AppUtil;
 import com.soapp.asoda.Util.SharedPreferencesFactory;
 import com.soapp.asoda.Util.ToastUtil;
 
@@ -141,6 +142,32 @@ public class MyDialogStyle {
         button2.setText(btntext2);
         button1.setOnClickListener(listener1);
         button2.setOnClickListener(listener2);
+        showDialog();
+    }
+
+    public void showAboutDialog() {
+        dialog.setCancelable(true);
+        View detail_layout = View.inflate(
+                context,
+                R.layout.dialog_one_button_normal, null);
+        dialog.setContentView(detail_layout);
+        TextView title = (TextView) detail_layout.findViewById(R.id.title);
+        TextView content = (TextView) detail_layout.findViewById(R.id.content);
+        title.setText(context.getString(R.string.about) + context.getString(R.string.app_name));
+        StringBuffer buffer = new StringBuffer();
+        buffer.append(context.getString(R.string.version) + ":" + AppUtil.getVersion(context)+"\n\n");
+        buffer.append(context.getString(R.string.author)+":"+context.getString(R.string.authorname)+"\n");
+        buffer.append(context.getString(R.string.email)+":"+context.getString(R.string.authoremail)+"\n");
+        buffer.append(context.getString(R.string.qq)+":"+context.getString(R.string.authorqq));
+        content.setText(buffer);
+        Button button1 = (Button) detail_layout.findViewById(R.id.button1);
+        button1.setText(context.getString(R.string.ok));
+        button1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dismissDialog();
+            }
+        });
         showDialog();
     }
 }

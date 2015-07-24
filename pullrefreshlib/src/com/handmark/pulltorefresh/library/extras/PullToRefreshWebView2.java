@@ -15,13 +15,14 @@
  *******************************************************************************/
 package com.handmark.pulltorefresh.library.extras;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import android.content.Context;
 import android.util.AttributeSet;
 import android.webkit.WebView;
 
+import com.handmark.pulltorefresh.library.ExtendedWebView;
 import com.handmark.pulltorefresh.library.PullToRefreshWebView;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * An advanced version of {@link PullToRefreshWebView} which delegates the
@@ -82,8 +83,8 @@ public class PullToRefreshWebView2 extends PullToRefreshWebView {
 	private final AtomicBoolean mIsReadyForPullUp = new AtomicBoolean(false);
 
 	@Override
-	protected WebView createRefreshableView(Context context, AttributeSet attrs) {
-		WebView webView = super.createRefreshableView(context, attrs);
+	protected ExtendedWebView createRefreshableView(Context context, AttributeSet attrs) {
+		ExtendedWebView webView = super.createRefreshableView(context, attrs);
 
 		// Need to add JS Interface so we can get the response back
 		mJsCallback = new JsValueCallback();
